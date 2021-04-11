@@ -3,13 +3,13 @@
 from typing import List
 from sqlalchemy.orm.exc import NoResultFound
 
-# from src.data.interfaces import PetRepositoryInterface
+from src.data.interfaces import PetRepositoryInterface
 from src.domain.models import Pets
 from src.infra.config import DBConnectionHandler
 from src.infra.entities import Pets as PetsModel
 
 
-class PetRepository:  # PetRepositoryInterface
+class PetRepository(PetRepositoryInterface):
     """ Class to manage Pet Repository """
 
     @classmethod
