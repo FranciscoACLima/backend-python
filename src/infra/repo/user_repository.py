@@ -44,35 +44,35 @@ class UserRepository(UserRepositoryInterface):
                - name: User name
         :return - List with Users selected
         """
-
-        try:
+        with DBConnectionHandler() as db_connection:
             query_data = None
-            if user_id and not name:
-                with DBConnectionHandler() as db_connection:
+            try:
+                if user_id and not name:
                     data = (
                         db_connection.session.query(UsersModel)
                         .filter_by(id=user_id)
                         .one()
                     )
                     query_data = [data]
-            elif not user_id and name:
-                with DBConnectionHandler() as db_connection:
+                elif not user_id and name:
                     data = (
                         db_connection.session.query(UsersModel)
                         .filter_by(name=name)
                         .one()
                     )
                     query_data = [data]
-            elif user_id and name:
-                with DBConnectionHandler() as db_connection:
+                elif user_id and name:
                     data = (
                         db_connection.session.query(UsersModel)
                         .filter_by(id=user_id, name=name)
                         .one()
                     )
                     query_data = [data]
-            return query_data
-        except NoResultFound:
-            return []
-        finally:
-            db_connection.session.close()
+                return query_data
+            except NoResultFound:
+                return []
+            except:
+                db_connection.session.rollback()
+                raise
+            finally:
+                db_connection.session.close()
