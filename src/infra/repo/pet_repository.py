@@ -53,35 +53,35 @@ class PetRepository(PetRepositoryInterface):
                - user_ud: Id of the owner
         :return - List with Pets selected
         """
-
-        try:
+        with DBConnectionHandler() as db_connection:
             query_data = None
-            if pet_id and not user_id:
-                with DBConnectionHandler() as db_connection:
+            try:
+                if pet_id and not user_id:
                     data = (
                         db_connection.session.query(PetsModel)
                         .filter_by(id=pet_id)
                         .one()
                     )
                     query_data = [data]
-            elif not pet_id and user_id:
-                with DBConnectionHandler() as db_connection:
+                elif not pet_id and user_id:
                     data = (
                         db_connection.session.query(PetsModel)
                         .filter_by(user_id=user_id)
                         .all()
                     )
                     query_data = data
-            elif pet_id and user_id:
-                with DBConnectionHandler() as db_connection:
+                elif pet_id and user_id:
                     data = (
                         db_connection.session.query(PetsModel)
                         .filter_by(id=pet_id, user_id=user_id)
                         .one()
                     )
                     query_data = [data]
-            return query_data
-        except NoResultFound:
-            return []
-        finally:
-            db_connection.session.close()
+                return query_data
+            except NoResultFound:
+                return []
+            except:
+                db_connection.session.rollback()
+                raise
+            finally:
+                db_connection.session.close()
